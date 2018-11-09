@@ -8,11 +8,11 @@ server.listen(port, () => console.log(`\nAPI running on port ${port}\n`));
 
 //USER METHODS
 server.use('/api/projects/', projectsRouter);
-// server.get('/api/users/:id', userRouter);
-// server.get('/api/users/posts/:id', userRouter);
-// server.post('/api/users', userRouter);
-// server.delete('/api/users/:id', userRouter);
-// server.put('/api/users/:id', userRouter);
+server.get('/api/projects/:id', projectsRouter);
+server.get('/api/projects/actions/:id', projectsRouter);
+server.post('/api/projects', projectsRouter);
+server.delete('/api/projects/:id', projectsRouter);
+server.put('/api/projects/:id', projectsRouter);
 
 //POSTS METHODS
 // server.use('/api/posts/', postsRouter);

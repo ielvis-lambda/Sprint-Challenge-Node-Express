@@ -12,74 +12,106 @@ router.get('/', async (req, res) => {
     const projects = await projectDb.get();
     res.status(200).json(projects);
   } catch (error) {
-    console.log('the error is: ', error);
     res.status(500).json({ message: " error: 'The projects could not be retrieved'", error: error });
   }
 });
 
-// router.get('/api/posts/:id', async (req, res) => {
-//   const { id } = req.params;
-//   console.log(id);
-//   try {
-//     let foundPost = await postDb.get(id);
-//     {
-//       foundPost
-//         ? res.status(200).json(foundPost)
-//         : res.status(404).json({ error: 'The post with that ID does not exist.' });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: 'The post could not be retrieved.' });
-//   }
-// });
+router.get('/api/projects/:id', async (req, res) => {
+  try {
+    projectDb.get().then(projects => {
+      const { id } = req.params;
+      const project = projects.find(project => `${project.id}` === id);
 
-// router.post('/api/posts', async (req, res) => {
-//   const postData = req.body;
-//   console.log(req.body);
-//   if (!postData.text || !postData.userId) {
-//     res.status(400).json({ errorMessage: 'Please provide text for your post and/or and ID of the user.' });
-//   } else {
-//     try {
-//       const newPost = await postDb.insert(postData);
-//       res.status(201).json(newPost);
-//     } catch (error) {
-//       res.status(500).json({ error: 'There was an error while saving the post to the database. The error is ', error });
-//     }
-//   }
-// });
+      if (!project) {
+        return res.status(404).json({ message: '404 project Not Found' });
+      }
 
-// router.delete('/api/posts/:id', (req, res) => {
-//   const { id } = req.params;
-//   postDb
-//     .remove(id)
-//     .then(deletedPost => {
-//       deletedPost
-//         ? res.status(202).json({ message: 'Post removed' })
-//         : res.status(404).json({ message: 'The post with the specified ID does not exist.' });
-//     })
-//     .catch(err => {
-//       res.status(500).json({ error: 'The post could not be removed.' });
-//     });
-// });
+      projectDb
+        .get(id)
+        .then(project => {
+          res.status(200).json(project);
+        })
+        .catch(error => {
+          res.status(500).json({ message: 'The project could not be retrieved' });
+        });
+    });
+  } catch (error) {
+    res.status(500).json({ message: " error: 'The projects could not be retrieved'", error: error });
+  }
+});
 
-// router.put('/api/posts/:id', async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const changes = req.body;
+router.get('/api/projects/actions/:id', async (req, res) => {
+  try {
+    projectDb.get().then(projects => {
+      const { id } = req.params;
+      const project = projects.find(project => `${project.id}` === id);
 
-//     if (!changes.text || !changes.userId) {
-//       res.status(400).json({ errorMessage: 'Please provide text for your post and/or the ID of the user.' });
-//     } else {
-//       const foundPost = await postDb.get(id);
-//       if (!foundPost) {
-//         res.status(404).json({ message: `error: The post with the specified ID does not exist.` });
-//       } else {
-//         const count = await postDb.update(id, changes);
-//         res.status(200).json({ message: `${count} posts updated` });
-//       }
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: 'The post could not be updated.' });
-//   }
-// });
+      if (!project) {
+        return res.status(404).json({ message: '404 project Not Found' });
+      }
+
+      projectDb
+        .getProjectActions(id)
+        .then(actions => {
+          res.status(200).json(actions);
+        })
+        .catch(error => {
+          res.status(500).json({ message: 'The project actions could not be retrieved' });
+        });
+    });
+  } catch (error) {
+    res.status(500).json({ message: " error: 'The projects could not be retrieved'", error: error });
+  }
+});
+
+router.post('/api/projects/actions/:id', async (req, res) => {
+  const projectData = req.body;
+  console.log(req.body);
+  if (!projectData.name || !projectData.description) {
+    res.status(400).json({ errorMessage: 'Please provide a name and a description for your project.' });
+  } else {
+    try {
+      const newProject = await projectDb.insert(projectData);
+      res.status(201).json(newProject);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: 'There was an error while saving the project to the database. The error is ', error });
+    }
+  }
+});
+
+router.delete('/api/projects/:id', (req, res) => {
+  const { id } = req.params;
+  projectDb
+    .remove(id)
+    .then(deletedProject => {
+      deletedProject
+        ? res.status(202).json({ message: 'Project removed' })
+        : res.status(404).json({ message: 'The project with the specified ID does not exist.' });
+    })
+    .catch(err => {
+      res.status(500).json({ error: 'The project could not be removed.' });
+    });
+});
+
+router.put('/api/projects/:id', async (req, res) => {
+  try {
+    projectDb.get().then(projects => {
+      const { id } = req.params;
+      const changes = req.body;
+      const project = projects.find(project => `${project.id}` === id);
+
+      if (!project) {
+        return res.status(404).json({ message: '404 project Not Found' });
+      } else {
+        projectDb.update(id, changes);
+        res.status(200).json({ message: `Project: ${project.name} has been updated` });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: " error: 'The projects could not be retrieved'", error: error });
+  }
+});
 
 module.exports = router;
