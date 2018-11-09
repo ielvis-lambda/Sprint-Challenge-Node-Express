@@ -64,7 +64,7 @@ router.get('/api/projects/actions/:id', async (req, res) => {
   }
 });
 
-router.post('/api/projects/actions/:id', async (req, res) => {
+router.post('/api/projects/', async (req, res) => {
   const projectData = req.body;
   console.log(req.body);
   if (!projectData.name || !projectData.description) {
